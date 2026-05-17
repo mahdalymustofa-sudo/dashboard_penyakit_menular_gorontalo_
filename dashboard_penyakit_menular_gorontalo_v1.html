@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Pemantauan Penyakit Menular — Provinsi Gorontalo</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f172a;color:#e2e8f0;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+.header{background:linear-gradient(135deg,#0f172a 0%,#162032 100%);border-bottom:1px solid #1e3a4a;padding:18px 28px}
+.header-inner{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px}
+.badge{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.dot{width:8px;height:8px;border-radius:50%;background:#22d3ee;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.badge-text{font-size:10px;color:#475569;letter-spacing:.12em;text-transform:uppercase;font-weight:700}
+h1{font-size:20px;font-weight:800;color:#f1f5f9;letter-spacing:-.02em}
+.subtitle{font-size:12px;color:#475569;margin-top:4px}
+.date-info{text-align:right;font-size:12px}
+.date-label{color:#334155}.date-val{color:#64748b;font-weight:600}
+.main{padding:20px 28px}
+.filter-bar{display:flex;gap:8px;align-items:center;margin-bottom:20px;flex-wrap:wrap}
+.filter-label{font-size:11px;color:#475569;font-weight:700;text-transform:uppercase;letter-spacing:.1em}
+.btn-disease{padding:7px 22px;border-radius:8px;border:1px solid #334155;background:transparent;color:#64748b;font-weight:700;font-size:13px;cursor:pointer;transition:all .2s}
+.btn-disease:hover{border-color:#475569;color:#94a3b8}
+.active-dbd{background:#f97316!important;border-color:#f97316!important;color:#0f172a!important}
+.active-tbc{background:#22d3ee!important;border-color:#22d3ee!important;color:#0f172a!important}
+.filter-info{margin-left:auto;font-size:12px;color:#334155}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+@media(max-width:768px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+.kpi-card{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:16px 18px;transition:border-color .2s}
+.kpi-card:hover{border-color:#475569}
+.kpi-icon{font-size:22px;margin-bottom:8px}
+.kpi-label{font-size:10px;color:#475569;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
+.kpi-val{font-size:20px;font-weight:800;color:#f1f5f9}
+.kpi-sub{font-size:11px;color:#334155;margin-top:3px}
+.charts-row{display:grid;gap:14px;margin-bottom:14px}
+.row1{grid-template-columns:1.7fr 1fr}
+.row2{grid-template-columns:1.7fr 1fr}
+@media(max-width:900px){.row1,.row2{grid-template-columns:1fr}}
+.chart-card{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:20px}
+.chart-title{font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px}
+.chart-wrap{position:relative}
+.ranking-list{display:flex;flex-direction:column;gap:12px;margin-top:4px}
+.rank-item{display:flex;align-items:center;gap:10px}
+.rank-num{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#0f172a;flex-shrink:0}
+.rank-info{flex:1;min-width:0}
+.rank-name{font-size:11px;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rank-bar-bg{background:#0f172a;border-radius:3px;height:5px;margin-top:5px}
+.rank-bar{height:100%;border-radius:3px;transition:width .6s ease}
+.rank-right{text-align:right;flex-shrink:0}
+.rank-val{font-size:14px;font-weight:800;color:#f1f5f9}
+.rank-pct{font-size:10px}
+.pct-up{color:#f87171}.pct-down{color:#34d399}
+.alert-box{margin-top:10px;font-size:11px;padding:6px 12px;border-radius:6px}
+.footer{margin-top:16px;padding:12px 0;border-top:1px solid #1e293b;font-size:11px;color:#334155;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div>
+      <div class="badge">
+        <div class="dot"></div>
+        <span class="badge-text">Sistem Surveilans Kesehatan Publik &nbsp;·&nbsp; Dashboard v1.0</span>
+      </div>
+      <h1>Pemantauan Penyakit Menular — Provinsi Gorontalo</h1>
+      <p class="subtitle">Analisis Spasial-Temporal 2020–2024 &nbsp;·&nbsp; Sumber: BPS Gorontalo &amp; Kaggle Indonesia Health Statistics</p>
+    </div>
+    <div class="date-info">
+      <div class="date-label">Diperbarui</div>
+      <div class="date-val">17 Mei 2026</div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="filter-bar">
+    <span class="filter-label">Penyakit:</span>
+    <button class="btn-disease active-dbd" id="btn-dbd" onclick="setDisease('DBD')">🦟 DBD</button>
+    <button class="btn-disease" id="btn-tbc" onclick="setDisease('TBC')">🫁 TBC</button>
+    <span class="filter-info" id="filter-info">Demam Berdarah Dengue &nbsp;·&nbsp; 6 Kabupaten/Kota</span>
+  </div>
+
+  <div class="kpi-grid" id="kpi-grid"></div>
+
+  <div class="charts-row row1">
+    <div class="chart-card">
+      <div class="chart-title">📈 Tren Kasus Tahunan per Kabupaten/Kota (2020–2024)</div>
+      <div class="chart-wrap" style="height:230px"><canvas id="trendChart" role="img" aria-label="Grafik tren kasus tahunan per kabupaten/kota">Grafik tren kasus penyakit menular per kabupaten di Provinsi Gorontalo dari 2020 hingga 2024.</canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">🗺️ Distribusi per Wilayah (2024)</div>
+      <div class="chart-wrap" style="height:230px"><canvas id="distChart" role="img" aria-label="Grafik distribusi kasus per wilayah tahun 2024">Distribusi kasus per kabupaten/kota tahun 2024.</canvas></div>
+    </div>
+  </div>
+
+  <div class="charts-row row2">
+    <div class="chart-card">
+      <div class="chart-title">🗓️ Pola Musiman Bulanan (Estimasi Provinsi 2024)</div>
+      <div class="chart-wrap" style="height:180px"><canvas id="monthChart" role="img" aria-label="Grafik pola musiman bulanan tahun 2024">Pola distribusi kasus per bulan sepanjang tahun 2024.</canvas></div>
+      <div class="alert-box" id="seasonal-alert"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">🏆 Ranking Kasus 2024</div>
+      <div class="ranking-list" id="ranking-list"></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>Proyek Analitik Data Kesehatan &nbsp;·&nbsp; UMG 2026</span>
+    <span>Data: BPS Provinsi Gorontalo &nbsp;·&nbsp; Kaggle Indonesia Health Statistics &nbsp;·&nbsp; Estimasi Modelling</span>
+  </div>
+</div>
+
+<script>
+const KAB = [
+  {id:'kota',    label:'Kota Gorontalo',        short:'Kota Gtlo'},
+  {id:'kabgtlo', label:'Kab. Gorontalo',         short:'Kab. Gtlo'},
+  {id:'bone',    label:'Kab. Bone Bolango',       short:'Bone Bolango'},
+  {id:'pohuwato',label:'Kab. Pohuwato',           short:'Pohuwato'},
+  {id:'boalemo', label:'Kab. Boalemo',            short:'Boalemo'},
+  {id:'utara',   label:'Kab. Gorontalo Utara',    short:'Gtlo Utara'},
+];
+
+const DATA = {
+  DBD: {
+    kota:     [85, 62,143, 98,117],
+    kabgtlo:  [52, 38, 89, 67, 74],
+    bone:     [31, 24, 56, 43, 48],
+    pohuwato: [28, 19, 47, 35, 41],
+    boalemo:  [22, 16, 38, 29, 33],
+    utara:    [18, 12, 31, 23, 26],
+  },
+  TBC: {
+    kota:     [412,387,456,478,501],
+    kabgtlo:  [298,312,334,356,378],
+    bone:     [187,195,213,228,241],
+    pohuwato: [156,168,178,192,204],
+    boalemo:  [134,141,152,163,175],
+    utara:    [112,118,127,138,147],
+  },
+};
+
+const YEARS   = ['2020','2021','2022','2023','2024'];
+const MONTHS  = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+const MONTHLY = {
+  DBD: [62,78,45,23,12,8,9,11,14,18,34,25],
+  TBC: [128,131,145,138,142,135,140,143,136,148,132,128],
+};
+const COLORS  = ['#22d3ee','#818cf8','#34d399','#fb923c','#f472b6','#a78bfa'];
+
+let disease = 'DBD';
+let trendChart, distChart, monthChart;
+
+function getTotal(d, yi){ return KAB.reduce((s,k)=>s+DATA[d][k.id][yi],0); }
+
+function updateKPIs(){
+  const t24 = getTotal(disease,4), t23 = getTotal(disease,3);
+  const growth = ((t24-t23)/t23*100).toFixed(1);
+  const rankData = KAB.map(k=>({short:k.short,val:DATA[disease][k.id][4]})).sort((a,b)=>b.val-a.val);
+  const dColor = disease==='DBD'?'#f97316':'#22d3ee';
+  const kpis = [
+    {icon:'📊',label:'Total Kasus 2024',val:t24.toLocaleString('id-ID'),sub:'seluruh kabupaten/kota'},
+    {icon:parseFloat(growth)>0?'📈':'📉',label:'Tren 2023→2024',val:`${parseFloat(growth)>0?'+':''}${growth}%`,sub:parseFloat(growth)>0?'meningkat dari tahun lalu':'menurun dari tahun lalu'},
+    {icon:'📍',label:'Wilayah Tertinggi',val:rankData[0].short,sub:`${rankData[0].val} kasus · 2024`},
+    {icon:'⚖️',label:'Rata-rata / Kab',val:Math.round(t24/6).toLocaleString('id-ID'),sub:'kasus per wilayah (2024)'},
+  ];
+  document.getElementById('kpi-grid').innerHTML = kpis.map(c=>`
+    <div class="kpi-card" style="border-left:3px solid ${dColor}">
+      <div class="kpi-icon">${c.icon}</div>
+      <div class="kpi-label">${c.label}</div>
+      <div class="kpi-val">${c.val}</div>
+      <div class="kpi-sub">${c.sub}</div>
+    </div>`).join('');
+}
+
+function updateRanking(){
+  const rd = KAB.map((k,i)=>({
+    short:k.short, val:DATA[disease][k.id][4],
+    prev:DATA[disease][k.id][3], color:COLORS[i]
+  })).sort((a,b)=>b.val-a.val);
+  const maxVal = rd[0].val;
+  document.getElementById('ranking-list').innerHTML = rd.map((r,i)=>{
+    const pct = ((r.val-r.prev)/r.prev*100).toFixed(1);
+    const up = parseFloat(pct)>0;
+    return `<div class="rank-item">
+      <div class="rank-num" style="background:${r.color}">${i+1}</div>
+      <div class="rank-info">
+        <div class="rank-name">${r.short}</div>
+        <div class="rank-bar-bg"><div class="rank-bar" style="width:${(r.val/maxVal*100).toFixed(1)}%;background:${r.color}"></div></div>
+      </div>
+      <div class="rank-right">
+        <div class="rank-val">${r.val}</div>
+        <div class="rank-pct ${up?'pct-up':'pct-down'}">${up?'↑':'↓'}${Math.abs(pct)}%</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function buildTrendChart(){
+  const ctx = document.getElementById('trendChart');
+  if(trendChart) trendChart.destroy();
+  trendChart = new Chart(ctx,{
+    type:'line',
+    data:{labels:YEARS, datasets:KAB.map((k,i)=>({
+      label:k.short, data:DATA[disease][k.id],
+      borderColor:COLORS[i], backgroundColor:COLORS[i]+'22',
+      borderWidth:2.5, pointRadius:4, pointBackgroundColor:COLORS[i], tension:0.35,
+    }))},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#64748b',font:{size:10},boxWidth:12,padding:10}}},
+      scales:{
+        x:{ticks:{color:'#475569',font:{size:11}},grid:{color:'#1e3a4a'}},
+        y:{ticks:{color:'#475569',font:{size:11}},grid:{color:'#1e3a4a'}},
+      }
+    }
+  });
+}
+
+function buildDistChart(){
+  const ctx = document.getElementById('distChart');
+  if(distChart) distChart.destroy();
+  const rd = KAB.map((k,i)=>({label:k.short,val:DATA[disease][k.id][4],color:COLORS[i]})).sort((a,b)=>b.val-a.val);
+  distChart = new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:rd.map(r=>r.label),
+      datasets:[{data:rd.map(r=>r.val), backgroundColor:rd.map(r=>r.color), borderRadius:5, borderSkipped:false}]
+    },
+    options:{
+      indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{ticks:{color:'#475569',font:{size:10}},grid:{color:'#1e3a4a'}},
+        y:{ticks:{color:'#94a3b8',font:{size:10}},grid:{display:false}},
+      }
+    }
+  });
+}
+
+function buildMonthChart(){
+  const dColor = disease==='DBD'?'#f97316':'#22d3ee';
+  const ctx = document.getElementById('monthChart');
+  if(monthChart) monthChart.destroy();
+  monthChart = new Chart(ctx,{
+    type:'line',
+    data:{
+      labels:MONTHS,
+      datasets:[{
+        label:'Kasus', data:MONTHLY[disease],
+        borderColor:dColor, backgroundColor:dColor+'30',
+        fill:true, borderWidth:2.5,
+        pointRadius:3, pointBackgroundColor:dColor, tension:0.4,
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{ticks:{color:'#475569',font:{size:10}},grid:{color:'#1e3a4a'}},
+        y:{ticks:{color:'#475569',font:{size:10}},grid:{color:'#1e3a4a'}},
+      }
+    }
+  });
+  const alertEl = document.getElementById('seasonal-alert');
+  if(disease==='DBD'){
+    alertEl.textContent='⚠️ Puncak kasus DBD terjadi pada Jan–Feb (musim hujan); transmisi menurun drastis Jun–Agu';
+    alertEl.style.cssText='margin-top:10px;font-size:11px;padding:6px 12px;border-radius:6px;border-left:2px solid #f97316;color:#fb923c;background:rgba(249,115,22,.1)';
+  } else {
+    alertEl.textContent='ℹ️ TBC menunjukkan pola yang relatif stabil sepanjang tahun dengan variasi musiman minimal';
+    alertEl.style.cssText='margin-top:10px;font-size:11px;padding:6px 12px;border-radius:6px;border-left:2px solid #22d3ee;color:#67e8f9;background:rgba(34,211,238,.08)';
+  }
+}
+
+function setDisease(d){
+  disease=d;
+  document.getElementById('btn-dbd').className='btn-disease'+(d==='DBD'?' active-dbd':'');
+  document.getElementById('btn-tbc').className='btn-disease'+(d==='TBC'?' active-tbc':'');
+  document.getElementById('filter-info').textContent = d==='DBD'
+    ? 'Demam Berdarah Dengue \u00b7 6 Kabupaten/Kota Gorontalo'
+    : 'Tuberkulosis \u00b7 6 Kabupaten/Kota Gorontalo';
+  updateKPIs();
+  buildTrendChart();
+  buildDistChart();
+  buildMonthChart();
+  updateRanking();
+}
+
+setDisease('DBD');
+</script>
+</body>
+</html>
