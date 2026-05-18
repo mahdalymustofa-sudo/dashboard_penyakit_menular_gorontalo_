@@ -1,0 +1,1247 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <title>SiSurvPro · Gorontalo 2024</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #080c12;
+        --surface: #0f1521;
+        --s2: #161e2e;
+        --s3: #1c2638;
+        --border: #1e2d42;
+        --text: #dce8f5;
+        --t2: #7a95b3;
+        --t3: #3d5270;
+        --accent: #3d8ef0;
+        --dbd: #ff7d3b;
+        --tbc: #4db8ff;
+        --hiv: #ff5f6b;
+        --kusta: #c084fc;
+        --malaria: #34d399;
+        --danger: #ef4444;
+        --warn: #f59e0b;
+        --ok: #22c55e;
+        --nav-h: 60px;
+        --safe-bot: env(safe-area-inset-bottom, 0px);
+      }
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "DM Sans", system-ui, sans-serif;
+        min-height: 100dvh;
+        overscroll-behavior: none;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* TOPBAR */
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 90;
+        background: rgba(8, 12, 18, 0.88);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-bottom: 1px solid var(--border);
+        padding: 10px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .brand-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+        background: linear-gradient(135deg, #1a4fd6, #3d8ef0);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 17px;
+        flex-shrink: 0;
+      }
+      .brand-name {
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+      }
+      .brand-sub {
+        font-size: 10px;
+        color: var(--t2);
+        margin-top: 1px;
+      }
+      .live-chip {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        background: rgba(34, 197, 94, 0.08);
+        border: 1px solid rgba(34, 197, 94, 0.2);
+      }
+      .live-dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--ok);
+        animation: pulse 2s infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.2;
+        }
+      }
+      .live-txt {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--ok);
+        letter-spacing: 0.06em;
+      }
+
+      /* SECTIONS */
+      .sections {
+        padding-bottom: calc(var(--nav-h) + 14px + var(--safe-bot));
+      }
+      .section {
+        display: none;
+        padding: 14px 14px 0;
+        animation: fadeIn 0.2s ease;
+      }
+      .section.active {
+        display: block;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(5px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+
+      /* BOTTOM NAV */
+      .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 90;
+        background: rgba(8, 12, 18, 0.93);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-top: 1px solid var(--border);
+        display: flex;
+        align-items: stretch;
+        height: calc(var(--nav-h) + var(--safe-bot));
+        padding-bottom: var(--safe-bot);
+      }
+      .nav-btn {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        color: var(--t3);
+        transition: color 0.15s;
+        padding: 0;
+        min-height: 44px;
+      }
+      .nav-btn.active {
+        color: var(--accent);
+      }
+      .nav-btn.active .nav-pip {
+        opacity: 1;
+      }
+      .nav-icon {
+        font-size: 18px;
+        line-height: 1;
+      }
+      .nav-label {
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+      .nav-pip {
+        width: 3px;
+        height: 3px;
+        border-radius: 50%;
+        background: var(--accent);
+        opacity: 0;
+        transition: opacity 0.15s;
+      }
+
+      /* PAGE HEADER */
+      .page-header {
+        margin-bottom: 14px;
+      }
+      .page-title {
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+      .page-sub {
+        font-size: 11px;
+        color: var(--t2);
+        margin-top: 3px;
+      }
+
+      /* KPI GRID */
+      .kpi-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+      .kpi {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 13px 13px 11px;
+        position: relative;
+        overflow: hidden;
+      }
+      .kpi::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--accent-line, var(--accent));
+      }
+      .kpi-icon {
+        font-size: 18px;
+        margin-bottom: 7px;
+      }
+      .kpi-label {
+        font-size: 9px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--t3);
+        margin-bottom: 4px;
+      }
+      .kpi-val {
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: -0.04em;
+        font-family: "DM Mono", monospace;
+        color: var(--kc, var(--text));
+      }
+      .kpi-meta {
+        font-size: 10px;
+        color: var(--t2);
+        margin-top: 4px;
+        line-height: 1.4;
+      }
+      .kpi-tag {
+        display: inline-block;
+        margin-top: 6px;
+        padding: 2px 7px;
+        border-radius: 4px;
+        font-size: 9px;
+        font-weight: 700;
+        background: var(--tg, #1c2638);
+        color: var(--tc, var(--t2));
+      }
+
+      /* CARDS */
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 14px;
+        margin-bottom: 12px;
+      }
+      .card-title {
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--t2);
+        margin-bottom: 12px;
+      }
+      .chart-wrap {
+        position: relative;
+      }
+
+      /* INSIGHTS */
+      .insights {
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+        margin-bottom: 12px;
+      }
+      .insight {
+        border-radius: 10px;
+        padding: 11px 13px;
+        border-left: 3px solid var(--ic);
+        background: var(--ib);
+        font-size: 12px;
+        line-height: 1.55;
+        color: var(--t2);
+      }
+      .insight-head {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--ic);
+        margin-bottom: 5px;
+      }
+
+      /* TABLE */
+      .scroll-x {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 8px;
+      }
+      .dtable {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 11px;
+        min-width: 460px;
+      }
+      .dtable th {
+        padding: 8px 10px;
+        text-align: left;
+        font-size: 9px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--t3);
+        background: var(--s2);
+        border-bottom: 1px solid var(--border);
+        white-space: nowrap;
+      }
+      .dtable td {
+        padding: 9px 10px;
+        border-bottom: 1px solid var(--s2);
+        vertical-align: middle;
+      }
+      .dtable tr:last-child td {
+        border: none;
+        background: var(--s2);
+        font-weight: 700;
+      }
+      .dtable tr:hover td {
+        background: var(--s2);
+      }
+      .dot-sm {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 6px;
+      }
+      .rtag {
+        display: inline-block;
+        padding: 2px 7px;
+        border-radius: 4px;
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+      .r-kritis {
+        background: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+      }
+      .r-tinggi {
+        background: rgba(245, 158, 11, 0.15);
+        color: #f59e0b;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+      }
+      .r-sedang {
+        background: rgba(61, 142, 240, 0.15);
+        color: #3d8ef0;
+        border: 1px solid rgba(61, 142, 240, 0.3);
+      }
+      .r-rendah {
+        background: rgba(52, 211, 153, 0.15);
+        color: #34d399;
+        border: 1px solid rgba(52, 211, 153, 0.3);
+      }
+
+      /* RANK LIST */
+      .rank-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .rank-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .rnum {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: 800;
+        color: #080c12;
+        flex-shrink: 0;
+      }
+      .rinfo {
+        flex: 1;
+        min-width: 0;
+      }
+      .rname {
+        font-size: 12px;
+        color: var(--t2);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: 4px;
+      }
+      .rbar-bg {
+        background: var(--s3);
+        border-radius: 3px;
+        height: 4px;
+      }
+      .rbar {
+        height: 100%;
+        border-radius: 3px;
+      }
+      .rright {
+        text-align: right;
+        flex-shrink: 0;
+      }
+      .rval {
+        font-size: 14px;
+        font-weight: 700;
+        font-family: "DM Mono", monospace;
+      }
+      .rsub {
+        font-size: 9px;
+        color: var(--t3);
+      }
+
+      /* GAUGES */
+      .gauge-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 9px;
+        margin-bottom: 12px;
+      }
+      .gauge-card {
+        background: var(--s2);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 12px;
+        text-align: center;
+      }
+      .gauge-val {
+        font-size: 22px;
+        font-weight: 700;
+        font-family: "DM Mono", monospace;
+        margin-bottom: 2px;
+      }
+      .gauge-name {
+        font-size: 10px;
+        color: var(--t2);
+        line-height: 1.4;
+      }
+      .gbar-bg {
+        height: 5px;
+        background: var(--s3);
+        border-radius: 3px;
+        margin: 8px 0 4px;
+      }
+      .gbar {
+        height: 100%;
+        border-radius: 3px;
+      }
+      .gref {
+        font-size: 9px;
+        color: var(--t3);
+      }
+
+      /* COMPOSITE */
+      .comp-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        border-radius: 8px;
+        background: var(--s2);
+        border: 1px solid var(--border);
+        margin-bottom: 8px;
+      }
+      .comp-rank {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--t3);
+        width: 20px;
+        flex-shrink: 0;
+        text-align: center;
+      }
+      .comp-info {
+        flex: 1;
+        min-width: 0;
+      }
+      .comp-name {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text);
+      }
+      .comp-bw {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 5px;
+      }
+      .comp-bg {
+        flex: 1;
+        height: 5px;
+        background: var(--s3);
+        border-radius: 3px;
+      }
+      .comp-b {
+        height: 100%;
+        border-radius: 3px;
+      }
+      .comp-score {
+        font-size: 13px;
+        font-weight: 700;
+        font-family: "DM Mono", monospace;
+        flex-shrink: 0;
+      }
+
+      .footer {
+        padding: 14px;
+        font-size: 10px;
+        color: var(--t3);
+        text-align: center;
+        line-height: 1.7;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-icon">🏥</div>
+        <div>
+          <div class="brand-name">SiSurvPro</div>
+          <div class="brand-sub">Prov. Gorontalo · 2024</div>
+        </div>
+      </div>
+      <div class="live-chip">
+        <div class="live-dot"></div>
+        <span class="live-txt">DATA RIIL</span>
+      </div>
+    </header>
+
+    <main class="sections">
+      <!-- OVERVIEW -->
+      <div class="section active" id="sec-overview">
+        <div class="page-header">
+          <div class="page-title">Overview Provinsi</div>
+          <div class="page-sub">6 Indikator · BPS Gorontalo 2024</div>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi" style="--accent-line: var(--dbd); --kc: var(--dbd)">
+            <div class="kpi-icon">🦟</div>
+            <div class="kpi-label">DBD /100rb</div>
+            <div class="kpi-val">207.3</div>
+            <div class="kpi-meta">Rata-rata provinsi</div>
+            <div
+              class="kpi-tag"
+              style="--tg: rgba(255, 125, 59, 0.12); --tc: var(--dbd)"
+            >
+              ⚠ Bone Blng 393.8
+            </div>
+          </div>
+          <div class="kpi" style="--accent-line: var(--tbc); --kc: var(--tbc)">
+            <div class="kpi-icon">🫁</div>
+            <div class="kpi-label">TBC Temuan</div>
+            <div class="kpi-val">464</div>
+            <div class="kpi-meta">Total kasus 2024</div>
+            <div
+              class="kpi-tag"
+              style="--tg: rgba(77, 184, 255, 0.1); --tc: var(--tbc)"
+            >
+              Rata-rata 77/kab
+            </div>
+          </div>
+          <div class="kpi" style="--accent-line: var(--ok); --kc: var(--ok)">
+            <div class="kpi-icon">💊</div>
+            <div class="kpi-label">TBC Sukses</div>
+            <div class="kpi-val">89%</div>
+            <div class="kpi-meta">Rata-rata provinsi</div>
+            <div
+              class="kpi-tag"
+              style="--tg: rgba(34, 197, 94, 0.1); --tc: var(--ok)"
+            >
+              Target WHO ≥90%
+            </div>
+          </div>
+          <div class="kpi" style="--accent-line: var(--hiv); --kc: var(--hiv)">
+            <div class="kpi-icon">🔴</div>
+            <div class="kpi-label">HIV Baru</div>
+            <div class="kpi-val">48</div>
+            <div class="kpi-meta">Total kasus baru</div>
+            <div
+              class="kpi-tag"
+              style="--tg: rgba(255, 95, 107, 0.1); --tc: var(--hiv)"
+            >
+              Kota Gtlo 25
+            </div>
+          </div>
+          <div
+            class="kpi"
+            style="--accent-line: var(--kusta); --kc: var(--kusta)"
+          >
+            <div class="kpi-icon">🔬</div>
+            <div class="kpi-label">Kusta /100rb</div>
+            <div class="kpi-val">10.89</div>
+            <div class="kpi-meta">Rata-rata provinsi</div>
+            <div
+              class="kpi-tag"
+              style="--tg: rgba(192, 132, 252, 0.1); --tc: var(--kusta)"
+            >
+              GtloUtr 16.57
+            </div>
+          </div>
+          <div
+            class="kpi"
+            style="--accent-line: var(--malaria); --kc: var(--malaria)"
+          >
+            <div class="kpi-icon">🦠</div>
+            <div class="kpi-label">Malaria /1rb</div>
+            <div class="kpi-val">1.29</div>
+            <div class="kpi-meta">Rata-rata provinsi</div>
+            <div
+              class="kpi-tag"
+              style="--tg: rgba(52, 211, 153, 0.1); --tc: var(--malaria)"
+            >
+              Pohuwato 5.36
+            </div>
+          </div>
+        </div>
+
+        <div class="insights">
+          <div
+            class="insight"
+            style="--ic: var(--dbd); --ib: rgba(255, 125, 59, 0.07)"
+          >
+            <div class="insight-head">🦟 DBD — Temuan Kritis</div>
+            Bone Bolango tertinggi (393.8/100rb), 2× rata-rata provinsi.
+            Pohuwato (282.5) & Boalemo (230.5) menyusul. Kota Gorontalo terendah
+            (119.1) — korelasi kapasitas sistem kesehatan.
+          </div>
+          <div
+            class="insight"
+            style="--ic: var(--tbc); --ib: rgba(77, 184, 255, 0.07)"
+          >
+            <div class="insight-head">🫁 TBC — Perhatian</div>
+            Pohuwato sukses pengobatan terendah (83%), di bawah target WHO 90%.
+            Gtlo Utara penemuan kasus terendah (49) — risiko under-reporting.
+          </div>
+          <div
+            class="insight"
+            style="--ic: var(--kusta); --ib: rgba(192, 132, 252, 0.07)"
+          >
+            <div class="insight-head">🔬 Kusta & Malaria</div>
+            Kusta endemik di non-perkotaan: Gtlo Utara, Pohuwato, Bone Bolango.
+            Malaria terkonsentrasi di Pohuwato & Boalemo (pesisir/rural).
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">📋 Ringkasan Semua Indikator</div>
+          <div class="scroll-x">
+            <table class="dtable" id="main-table"></table>
+          </div>
+        </div>
+
+        <div class="footer">
+          SiSurvPro · UMG 2026<br />BPS Provinsi Gorontalo · Kaggle Indonesia
+          Health Statistics
+        </div>
+      </div>
+
+      <!-- DBD -->
+      <div class="section" id="sec-dbd">
+        <div class="page-header">
+          <div class="page-title">🦟 Demam Berdarah Dengue</div>
+          <div class="page-sub">
+            Angka kesakitan per 100.000 penduduk · 2024
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Distribusi per Wilayah</div>
+          <div class="chart-wrap" style="height: 220px">
+            <canvas id="dbd-bar" role="img" aria-label="DBD bar chart 2024"
+              >Grafik DBD per kabupaten 2024.</canvas
+            >
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">🏆 Ranking Wilayah</div>
+          <div class="rank-list" id="dbd-rank"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">🎯 Status Risiko per Kabupaten</div>
+          <div id="dbd-risk-cards"></div>
+        </div>
+      </div>
+
+      <!-- TBC -->
+      <div class="section" id="sec-tbc">
+        <div class="page-header">
+          <div class="page-title">🫁 Tuberkulosis (TBC)</div>
+          <div class="page-sub">
+            Penemuan kasus & keberhasilan pengobatan · 2024
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Penemuan Kasus TBC</div>
+          <div class="chart-wrap" style="height: 210px">
+            <canvas
+              id="tbc-find-bar"
+              role="img"
+              aria-label="TBC penemuan bar chart 2024"
+              >TBC penemuan per kabupaten 2024.</canvas
+            >
+          </div>
+        </div>
+        <div class="gauge-grid" id="tbc-gauges"></div>
+        <div class="card">
+          <div class="card-title">
+            Keberhasilan Pengobatan vs Target WHO 90%
+          </div>
+          <div class="chart-wrap" style="height: 200px">
+            <canvas
+              id="tbc-suc-bar"
+              role="img"
+              aria-label="TBC keberhasilan pengobatan 2024"
+              >TBC keberhasilan pengobatan per kabupaten 2024.</canvas
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- LAINNYA -->
+      <div class="section" id="sec-lainnya">
+        <div class="page-header">
+          <div class="page-title">🔬 HIV · Kusta · Malaria</div>
+          <div class="page-sub">Indikator penyakit lainnya · 2024</div>
+        </div>
+        <div class="card">
+          <div class="card-title">🔴 HIV/AIDS Kasus Baru</div>
+          <div class="chart-wrap" style="height: 190px">
+            <canvas id="hiv-bar" role="img" aria-label="HIV bar chart 2024"
+              >HIV 2024 per kabupaten.</canvas
+            >
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">🔬 Kusta per 100.000 Penduduk</div>
+          <div class="chart-wrap" style="height: 190px">
+            <canvas id="kusta-bar" role="img" aria-label="Kusta bar chart 2024"
+              >Kusta 2024 per kabupaten.</canvas
+            >
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">🦠 Malaria per 1.000 Penduduk</div>
+          <div class="chart-wrap" style="height: 190px">
+            <canvas
+              id="malaria-bar"
+              role="img"
+              aria-label="Malaria bar chart 2024"
+              >Malaria 2024 per kabupaten.</canvas
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- KOMPARASI -->
+      <div class="section" id="sec-komparasi">
+        <div class="page-header">
+          <div class="page-title">⚖️ Komparasi Wilayah</div>
+          <div class="page-sub">Skor risiko komposit 6 indikator · 2024</div>
+        </div>
+        <div class="card">
+          <div class="card-title">🕸️ Radar Profil Risiko (0–100)</div>
+          <div class="chart-wrap" style="height: 280px">
+            <canvas
+              id="radar-chart"
+              role="img"
+              aria-label="Radar chart profil risiko 2024"
+              >Radar profil risiko per kabupaten 2024.</canvas
+            >
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">🏆 Ranking Risiko Komposit</div>
+          <div id="composite-list"></div>
+        </div>
+      </div>
+    </main>
+
+    <nav class="bottom-nav">
+      <button class="nav-btn active" onclick="goNav('overview', this)">
+        <div class="nav-icon">📊</div>
+        <div class="nav-label">Overview</div>
+        <div class="nav-pip"></div>
+      </button>
+      <button class="nav-btn" onclick="goNav('dbd', this)">
+        <div class="nav-icon">🦟</div>
+        <div class="nav-label">DBD</div>
+        <div class="nav-pip"></div>
+      </button>
+      <button class="nav-btn" onclick="goNav('tbc', this)">
+        <div class="nav-icon">🫁</div>
+        <div class="nav-label">TBC</div>
+        <div class="nav-pip"></div>
+      </button>
+      <button class="nav-btn" onclick="goNav('lainnya', this)">
+        <div class="nav-icon">🔬</div>
+        <div class="nav-label">Lainnya</div>
+        <div class="nav-pip"></div>
+      </button>
+      <button class="nav-btn" onclick="goNav('komparasi', this)">
+        <div class="nav-icon">⚖️</div>
+        <div class="nav-label">Komparasi</div>
+        <div class="nav-pip"></div>
+      </button>
+    </nav>
+
+    <script>
+      const KAB = [
+        "Boalemo",
+        "Gorontalo",
+        "Pohuwato",
+        "Bone Bolango",
+        "Gorontalo Utara",
+        "Kota Gorontalo",
+      ];
+      const SHORT = [
+        "Boalemo",
+        "Kab.Gtlo",
+        "Pohuwato",
+        "BonBlng",
+        "GtloUtr",
+        "Kota Gtlo",
+      ];
+      const COLORS = [
+        "#4db8ff",
+        "#34d399",
+        "#f59e0b",
+        "#ef4444",
+        "#c084fc",
+        "#ff7d3b",
+      ];
+      const RGBA = [
+        "rgba(77,184,255,.18)",
+        "rgba(52,211,153,.18)",
+        "rgba(245,158,11,.18)",
+        "rgba(239,68,68,.18)",
+        "rgba(192,132,252,.18)",
+        "rgba(255,125,59,.18)",
+      ];
+
+      const D = {
+        tbc_find: [63, 84, 65, 88, 49, 115],
+        tbc_suc: [91, 93, 83, 92, 86, 90],
+        hiv: [1, 17, 0, 3, 2, 25],
+        kusta: [5.94, 12.72, 15.37, 14.48, 16.57, 2.68],
+        malaria: [3.16, 0.41, 5.36, 0.06, 0.34, 0.24],
+        dbd: [230.5, 157.6, 282.5, 393.8, 157.5, 119.1],
+      };
+
+      Chart.defaults.color = "#7a95b3";
+      Chart.defaults.borderColor = "#1e2d42";
+      Chart.defaults.font.family = "'DM Sans',system-ui";
+      Chart.defaults.font.size = 11;
+      const GC = "#1c2638";
+
+      function norm(arr, inv = false) {
+        const mn = Math.min(...arr),
+          mx = Math.max(...arr);
+        return arr.map((v) =>
+          inv ? (1 - (v - mn) / (mx - mn)) * 100 : ((v - mn) / (mx - mn)) * 100,
+        );
+      }
+      function compScores() {
+        const layers = [
+          norm(D.dbd),
+          norm(D.tbc_find),
+          norm(D.hiv),
+          norm(D.kusta),
+          norm(D.malaria),
+          norm(D.tbc_suc, true),
+        ];
+        return KAB.map((_, i) =>
+          Math.round(layers.reduce((s, a) => s + a[i], 0) / 6),
+        );
+      }
+      function rLabel(s) {
+        return s >= 75
+          ? "KRITIS"
+          : s >= 55
+            ? "TINGGI"
+            : s >= 35
+              ? "SEDANG"
+              : "RENDAH";
+      }
+      function rCls(s) {
+        return s >= 75
+          ? "kritis"
+          : s >= 55
+            ? "tinggi"
+            : s >= 35
+              ? "sedang"
+              : "rendah";
+      }
+      function rColor(s) {
+        return s >= 75
+          ? "#ef4444"
+          : s >= 55
+            ? "#f59e0b"
+            : s >= 35
+              ? "#3d8ef0"
+              : "#34d399";
+      }
+
+      function hbar(id, data, colors, unit, refLine) {
+        const s = data.map((v, i) => ({ v, i })).sort((a, b) => b.v - a.v);
+        const ds = [
+          {
+            data: s.map((x) => x.v),
+            backgroundColor: s.map((x) => colors[x.i]),
+            borderRadius: 5,
+            borderSkipped: false,
+          },
+        ];
+        if (refLine)
+          ds.push({
+            type: "line",
+            data: s.map(() => refLine),
+            borderColor: "#ff7d3b",
+            borderWidth: 1.5,
+            borderDash: [5, 4],
+            pointRadius: 0,
+            label: `Prov: ${refLine}${unit || ""}`,
+          });
+        new Chart(document.getElementById(id), {
+          type: "bar",
+          data: { labels: s.map((x) => SHORT[x.i]), datasets: ds },
+          options: {
+            indexAxis: "y",
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: !!refLine,
+                labels: { color: "#7a95b3", boxWidth: 10, font: { size: 10 } },
+              },
+              tooltip: {
+                callbacks: { label: (c) => " " + c.raw + (unit || "") },
+              },
+            },
+            scales: {
+              x: {
+                ticks: { color: "#3d5270", font: { size: 10 } },
+                grid: { color: GC },
+              },
+              y: {
+                ticks: { color: "#7a95b3", font: { size: 11 } },
+                grid: { display: false },
+              },
+            },
+          },
+        });
+      }
+      function vbar(id, labels, data, colors, unit, refLine, yMin) {
+        const ds = [
+          {
+            data,
+            backgroundColor: colors,
+            borderRadius: 5,
+            borderSkipped: false,
+          },
+        ];
+        if (refLine)
+          ds.push({
+            type: "line",
+            data: labels.map(() => refLine),
+            borderColor: "#4db8ff",
+            borderWidth: 1.5,
+            borderDash: [5, 4],
+            pointRadius: 0,
+            label: `Target ${refLine}${unit || ""}`,
+          });
+        new Chart(document.getElementById(id), {
+          type: "bar",
+          data: { labels, datasets: ds },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: !!refLine,
+                labels: { color: "#7a95b3", boxWidth: 10, font: { size: 10 } },
+              },
+              tooltip: {
+                callbacks: { label: (c) => " " + c.raw + (unit || "") },
+              },
+            },
+            scales: {
+              x: {
+                ticks: {
+                  color: "#7a95b3",
+                  font: { size: 9.5 },
+                  maxRotation: 20,
+                },
+                grid: { display: false },
+              },
+              y: {
+                min: yMin || undefined,
+                ticks: { color: "#3d5270", font: { size: 10 } },
+                grid: { color: GC },
+              },
+            },
+          },
+        });
+      }
+
+      function buildMainTable() {
+        const sc = compScores();
+        document.getElementById("main-table").innerHTML = `<thead><tr>
+    <th>Kab/Kota</th><th>DBD</th><th>TBC</th><th>TBC%</th><th>HIV</th><th>Risiko</th>
+  </tr></thead><tbody>${KAB.map(
+    (k, i) => `<tr>
+    <td><span class="dot-sm" style="background:${COLORS[i]}"></span>${k}</td>
+    <td>${D.dbd[i]}</td><td>${D.tbc_find[i]}</td><td>${D.tbc_suc[i]}%</td><td>${D.hiv[i]}</td>
+    <td><span class="rtag r-${rCls(sc[i])}">${rLabel(sc[i])}</span></td>
+  </tr>`,
+  ).join("")}
+  <tr><td><strong>Provinsi</strong></td><td><strong>207.3</strong></td><td><strong>77</strong></td><td><strong>89%</strong></td><td><strong>48</strong></td><td><span class="rtag r-sedang">RATA-RATA</span></td></tr>
+  </tbody>`;
+      }
+
+      function buildDBDRank() {
+        const s = D.dbd.map((v, i) => ({ v, i })).sort((a, b) => b.v - a.v);
+        const mx = s[0].v;
+        document.getElementById("dbd-rank").innerHTML = s
+          .map(
+            (d, r) => `
+  <div class="rank-item">
+    <div class="rnum" style="background:${COLORS[d.i]}">${r + 1}</div>
+    <div class="rinfo">
+      <div class="rname">${KAB[d.i]}</div>
+      <div class="rbar-bg"><div class="rbar" style="width:${((d.v / mx) * 100).toFixed(1)}%;background:${COLORS[d.i]}"></div></div>
+    </div>
+    <div class="rright"><div class="rval">${d.v}</div><div class="rsub">/100rb</div></div>
+  </div>`,
+          )
+          .join("");
+      }
+
+      function buildDBDRiskCards() {
+        const s = D.dbd.map((v, i) => ({ v, i })).sort((a, b) => b.v - a.v);
+        const recs = [
+          "Fogging massal + PSN intensif segera",
+          "Peningkatan frekuensi fogging",
+          "Pemantauan aktif + edukasi PSN",
+          "Pemantauan rutin standar",
+        ];
+        document.getElementById("dbd-risk-cards").innerHTML = s
+          .map((d, r) => {
+            const c = d.v >= 350 ? 0 : d.v >= 250 ? 1 : d.v >= 180 ? 2 : 3;
+            return `<div class="comp-item" style="margin-bottom:8px">
+      <div class="rnum" style="background:${COLORS[d.i]}">${r + 1}</div>
+      <div class="comp-info">
+        <div class="comp-name">${KAB[d.i]}</div>
+        <div style="font-size:10px;color:var(--t2);margin-top:3px">${recs[c]}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <span class="rtag r-${"kritis tinggi sedang rendah".split(" ")[c]}">${"KRITIS TINGGI SEDANG RENDAH".split(" ")[c]}</span>
+        <div style="font-size:12px;font-weight:700;font-family:'DM Mono',monospace;margin-top:4px">${d.v}</div>
+      </div>
+    </div>`;
+          })
+          .join("");
+      }
+
+      function buildTBCGauges() {
+        const g = document.getElementById("tbc-gauges");
+        KAB.forEach((k, i) => {
+          const v = D.tbc_suc[i],
+            col = v >= 90 ? "#34d399" : v >= 85 ? "#f59e0b" : "#ef4444";
+          g.innerHTML += `<div class="gauge-card">
+      <div class="gauge-val" style="color:${col}">${v}%</div>
+      <div class="gauge-name">${k}</div>
+      <div class="gbar-bg"><div class="gbar" style="width:${Math.min(v, 100)}%;background:${col}"></div></div>
+      <div class="gref">Target WHO ≥90%</div>
+    </div>`;
+        });
+      }
+
+      function buildCompositeList() {
+        const sc = compScores();
+        const s = sc.map((v, i) => ({ v, i })).sort((a, b) => b.v - a.v);
+        const mx = s[0].v;
+        document.getElementById("composite-list").innerHTML = s
+          .map(
+            (d, r) => `
+  <div class="comp-item">
+    <div class="comp-rank">#${r + 1}</div>
+    <div class="comp-info">
+      <div class="comp-name"><span class="dot-sm" style="background:${COLORS[d.i]}"></span>${KAB[d.i]}</div>
+      <div class="comp-bw">
+        <div class="comp-bg"><div class="comp-b" style="width:${((d.v / mx) * 100).toFixed(1)}%;background:${rColor(d.v)}"></div></div>
+        <span class="rtag r-${rCls(d.v)}" style="font-size:8px;padding:1px 6px">${rLabel(d.v)}</span>
+      </div>
+    </div>
+    <div class="comp-score" style="color:${rColor(d.v)}">${d.v}</div>
+  </div>`,
+          )
+          .join("");
+      }
+
+      function buildRadar() {
+        const layers = [
+          norm(D.dbd),
+          norm(D.tbc_find),
+          norm(D.hiv),
+          norm(D.kusta),
+          norm(D.malaria),
+          norm(D.tbc_suc, true),
+        ];
+        new Chart(document.getElementById("radar-chart"), {
+          type: "radar",
+          data: {
+            labels: [
+              "DBD",
+              "TBC Temuan",
+              "HIV",
+              "Kusta",
+              "Malaria",
+              "TBC Gagal",
+            ],
+            datasets: KAB.map((k, i) => ({
+              label: k,
+              data: layers.map((l) => Math.round(l[i])),
+              borderColor: COLORS[i],
+              backgroundColor: RGBA[i],
+              borderWidth: 1.5,
+              pointRadius: 3,
+            })),
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                labels: {
+                  color: "#7a95b3",
+                  font: { size: 9 },
+                  boxWidth: 9,
+                  padding: 8,
+                },
+              },
+            },
+            scales: {
+              r: {
+                min: 0,
+                max: 100,
+                ticks: {
+                  color: "#3d5270",
+                  font: { size: 8 },
+                  backdropColor: "transparent",
+                  stepSize: 25,
+                },
+                grid: { color: "#1c2638" },
+                angleLines: { color: "#1c2638" },
+                pointLabels: { color: "#7a95b3", font: { size: 10 } },
+              },
+            },
+          },
+        });
+      }
+
+      function goNav(id, btn) {
+        document
+          .querySelectorAll(".section")
+          .forEach((s) => s.classList.remove("active"));
+        document
+          .querySelectorAll(".nav-btn")
+          .forEach((b) => b.classList.remove("active"));
+        document.getElementById("sec-" + id).classList.add("active");
+        btn.classList.add("active");
+        window.scrollTo({ top: 0, behavior: "instant" });
+      }
+
+      buildMainTable();
+      buildDBDRank();
+      buildDBDRiskCards();
+      buildTBCGauges();
+      buildCompositeList();
+      hbar("dbd-bar", D.dbd, COLORS, "/100rb", 207.3);
+      vbar("tbc-find-bar", SHORT, D.tbc_find, COLORS, " kasus", 77);
+      vbar(
+        "tbc-suc-bar",
+        SHORT,
+        D.tbc_suc,
+        D.tbc_suc.map((v) =>
+          v >= 90 ? "#34d399" : v >= 85 ? "#f59e0b" : "#ef4444",
+        ),
+        "%",
+        90,
+        75,
+      );
+      vbar("hiv-bar", SHORT, D.hiv, COLORS, " kasus");
+      vbar("kusta-bar", SHORT, D.kusta, COLORS, "/100rb");
+      vbar("malaria-bar", SHORT, D.malaria, COLORS, "/1rb");
+      buildRadar();
+    </script>
+  </body>
+</html>
